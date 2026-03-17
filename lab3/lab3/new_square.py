@@ -1,14 +1,12 @@
-"""Square path using odometry feedback. Base code for students."""
 import time
 import math
-
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, TwistStamped
 from nav_msgs.msg import Odometry
 
 
-class SquarePath(Node):
+class Square (Node):
     def __init__(self):
         super().__init__('square_path')
 
@@ -18,7 +16,7 @@ class SquarePath(Node):
         self.declare_parameter('odom_topic', '/model/vehicle_blue/odometry')
 
         odom_topic = self.get_parameter('odom_topic').value
-        self.pub = self.create_publisher(TwistStamped, "/cmd_vel", 10)
+        self.pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
         self.odom_sub = self.create_subscription(
             Odometry,
             odom_topic,
@@ -31,25 +29,25 @@ class SquarePath(Node):
         self.current_theta = 0.0
         self.odom_received = False
 
-        self.get_logger().info("Waiting for odometry...")
+        self.get_logger().info('Waiting for odometry...')
         while not self.odom_received:
             rclpy.spin_once(self, timeout_sec=0.1)
 
         time.sleep(0.5)
-        self.get_logger().info("Starting square path")
+        self.get_logger().info('Starting square path')
 
         side = self.get_parameter('side_length').value
 
         for i in range(4):
-            self.get_logger().info(f"Side {i+1}/4")
+            self.get_logger().info(f'side {i+1}/4')
             self.move_forward(distance=side)
             time.sleep(0.3)
-            self.turn(angle=math.pi / 2.0)
+            self.turn(angle = math.pi/2)
             time.sleep(0.3)
 
-        self.get_logger().info("Square complete!")
+        self.get_logger().info('Square complete!')
         self.pub.publish(TwistStamped())
-
+    
     def odom_callback(self, msg: Odometry):
         self.current_x = msg.pose.pose.position.x
         self.current_y = msg.pose.pose.position.y
@@ -72,7 +70,7 @@ class SquarePath(Node):
         while True:
             dx = self.current_x - start_x
             dy = self.current_y - start_y
-            if math.sqrt(dx*dx + dy*dy) >= distance:
+            if math.sqrt(dx*dx + dy * dy) >= distance:
                 break
             self.pub.publish(cmd)
             rclpy.spin_once(self, timeout_sec=0.01)
@@ -82,12 +80,11 @@ class SquarePath(Node):
 
     def turn(self, angle):
         start_theta = self.current_theta
-        speed = self.get_parameter('angular_speed').value
+        speed = self.get_paramether('angular_speed').value
 
         cmd = TwistStamped()
         cmd.header.frame_id = 'base_link'
         cmd.twist.angular.z = speed
-        cmd.header.stamp = self.get_clock().now().to_msg()
 
         while True:
             turned = self.current_theta - start_theta
@@ -95,21 +92,19 @@ class SquarePath(Node):
                 turned -= 2.0 * math.pi
             while turned < -math.pi:
                 turned += 2.0 * math.pi
-            if abs(turned) >= angle:
+            if abs(turned) > angle:
                 break
             self.pub.publish(cmd)
             rclpy.spin_once(self, timeout_sec=0.01)
 
         cmd.twist.angular.z = 0.0
         self.pub.publish(cmd)
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = SquarePath()
-    node.destroy_node()
-    rclpy.shutdown()
-
+    
+    def main(args=None):
+        rclpy.init(args = args)
+        node = Square()
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

@@ -4,7 +4,6 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 import math
 
-
 class RobotController(Node):
     def __init__(self):
         super().__init__('robot_controller')
@@ -26,7 +25,7 @@ class RobotController(Node):
         
         # TODO: Set linear and angular velocities
         # Linear: msg.linear.x (forward/backward in m/s)
-        # Angular: msg.angular.z (roитма спвччччччччччччччччччччччччччччччччччтттавсимчмииититtation in rad/s)
+        # Angular: msg.angular.z (rotation in rad/s)
         
         # Example: Move forward with sinusoidal turning
         msg.linear.x = 0.5  # 0.5 m/s forward
@@ -56,6 +55,7 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
