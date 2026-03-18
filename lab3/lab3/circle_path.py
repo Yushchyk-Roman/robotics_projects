@@ -29,7 +29,7 @@ class CirclePath(Node):
         wheel_s = float(self.get_parameter("wheel_separation").value)
         wl, wr_val = twist_to_wheel_speeds(v, w, wheel_r, wheel_s)
 
-        duration = 2.0 * math.pi / max(abs(w), 1e-6)
+        duration = 2.0 * math.pi / max(abs(w), 1e-6) + 3.0
         self.get_logger().info(f"Circle: v={v:.2f}, w={w:.2f}, t={duration:.2f}s | wheel ω: L={wl:.2f}, R={wr_val:.2f}")
 
         msg = TwistStamped()
